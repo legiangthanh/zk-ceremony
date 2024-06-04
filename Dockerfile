@@ -37,7 +37,7 @@ COPY --from=gh /bin/gh /bin/gh
 CMD [ "contribute" ]
 
 ### image to create ceremonies
-FROM node AS zk-voceremony-create
+FROM node AS zk-ceremony-create
 
 WORKDIR /app
 
@@ -54,6 +54,15 @@ RUN mkdir -p /temp && cd /temp && \
     cargo install --path circom && \
     npm config set update-notifier false && \
     npm install -g snarkjs circomlib
+
+WORKDIR /circuits/
+
+RUN git clone https://github.com/iden3/circuits.git . && \
+    npm ci && \
+    #https://github.com/iden3/snarkjs
+    wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_18.ptau
+
+WORKDIR /app
 
 COPY ./scripts/* /bin/
 

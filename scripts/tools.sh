@@ -2,11 +2,11 @@
 
 # log function helps to print info messages
 log() {
-	echo "-- [ZK-VOCEREMONY:INFO] -- $1"
+	echo "-- [ZK-CEREMONY:INFO] -- $1"
 }
 # error function helps to print error messages
 error() {
-	echo "-- [ZK-VOCEREMONY:ERROR] -- $1"
+	echo "-- [ZK-CEREMONY:ERROR] -- $1"
 	exit 1
 }
 
@@ -27,7 +27,7 @@ CIRCUIT_PATH="${TARGET_CIRCUIT:-"./circuit.circom"}"
 INPUT_PTAU_PATH="${INPUT_PTAU:-"./input.ptau"}"
 
 CONTRIBUTIONS_PATH="${CONTRIBUTIONS_PATH:-"./contributions"}"
-CONTRIBUTIONS_FILE="$CONTRIBUTIONS_PATH/CONTRIBUTIONS.md"
+
 
 OUTPUT_PATH="${OUTPUT_PATH:-"./results"}"
 OUTPUT_FILE="$OUTPUT_PATH/RESULTS.md"

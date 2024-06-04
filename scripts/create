@@ -3,78 +3,96 @@
 . /bin/tools.sh
 
 check_create_env() {
-	echo -e "Welcome to the '$CEREMONY_BRANCH' zk-voceremony creation process!\n"
-	echo " - You are using '$CIRCUIT_PATH' as circuit file and '$INPUT_PTAU_PATH' as initial ptau file."
+	echo -e "Welcome to the '$CEREMONY_BRANCH' zk-ceremony creation process!\n"
 	echo " - This script will compile the circuit and perform the initial contribution."
-	echo " - The global artifacts and initial contribution will be stored in '$CONTRIBUTIONS_PATH' folder."
-	echo " - The ceremony information and contributions will be stored in '$CONTRIBUTIONS_FILE' file."
+	echo " - The global artifacts and contribution will be stored in '$CONTRIBUTIONS_PATH' folder."
 	# if the -y flag is not present, ask for confirmation
 	if [ ! "$1" = "-y" ]; then
-	echo -e "\nRemember to commit and push the changes to the ceremony branch after the process is finished.\n"
+		echo -e "\nRemember to commit and push the changes to the ceremony branch after the process is finished.\n"
 		read -p "This process will overwrite any previous version. Are you sure? (y/n)" -n 1 -r
 		echo -e "\n"
-		if [[ ! $REPLY =~ ^[Yy]$ ]]
-		then
+		if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 			exit 1
 		fi
 	fi
 }
 
+INPUT_PTAU_PATH="/circuits/powersOfTau28_hez_final_18.ptau"
+
 compile_circuit() {
 	log "compile the target citcuit to get the r1cs file"
-	# include the npm global modules in the node_modules folder support circom 
+	# include the npm global modules in the node_modules folder support circom
 	# imports from root
 	ln -s "$(npm root -g)" /node_modules
 	# compilling the circuit
-	$CIRCOM $CIRCUIT_PATH --r1cs --wasm -o $CONTRIBUTIONS_PATH
+	circuit=$1
+	contribution_path=$CONTRIBUTIONS_PATH/$circuit
+	mkdir -p $contribution_path
+	circuit_path=/circuits/circuits/${circuit}.circom
+	circom $circuit_path --r1cs --wasm -o $contribution_path
 	# move the wasm file to the root of the output folder
-	mv $CONTRIBUTIONS_PATH/${CIRCUIT_FILENAME}_js/$CIRCUIT_FILENAME.wasm $CONTRIBUTIONS_PATH/$CIRCUIT_FILENAME.wasm
+	mv $contribution_path/${circuit}_js/$circuit.wasm $contribution_path/${circuit}.wasm
 	# remove the js folder
-	rm -rf $CONTRIBUTIONS_PATH/${CIRCUIT_FILENAME}_js
+	rm -rf $contribution_path/${circuit}_js
 }
 
 prepare_contribution() {
-	log "prepare the contribution using '$INPUT_PTAU_PATH' as initial ptau file"
-	$SNARKJS groth16 setup $CONTRIBUTIONS_PATH/$CIRCUIT_FILENAME.r1cs $INPUT_PTAU_PATH $CONTRIBUTIONS_PATH/${CIRCUIT_FILENAME}_initial_contribution.zkey
+	log "prepare the contribution using '/circuits/powersOfTau28_hez_final_18.ptau' as initial ptau file"
+	circuit=$1
+	contribution_path=$CONTRIBUTIONS_PATH/$circuit
+	snarkjs groth16 setup $contribution_path/$circuit.r1cs $INPUT_PTAU_PATH $contribution_path/${circuit}_initial_contribution.zkey
 }
 
 save_initial_contribution() {
-	log "save the initial contribution to '$CONTRIBUTIONS_FILE'"
-	# calculate the hashes of the global artifacts and initial contribution
-	local r1cs_hash=$(get_file_hash "$CONTRIBUTIONS_PATH/$CIRCUIT_FILENAME.r1cs")
-	local wasm_hash=$(get_file_hash "$CONTRIBUTIONS_PATH/$CIRCUIT_FILENAME.wasm")
-	local initial_ptau_hash=$(get_file_hash "$INPUT_PTAU_PATH")
-	local initial_zkey_hash=$(get_file_hash "$CONTRIBUTIONS_PATH/${CIRCUIT_FILENAME}_initial_contribution.zkey")
-	# create the contribution file content with the hashes
-	local contributions_content="### Global artifacts
-- [r1cs](./artifacts/circuit.r1cs) - \`$r1cs_hash\`
-- [wasm](./artifacts/circuit.wasm) - \`$wasm_hash\`
-- [initial ptau](./artifacts/initial.ptau) - \`$initial_ptau_hash\`
+	circuit=$1
+	contribution_path=$CONTRIBUTIONS_PATH/$circuit
+	contribution_file="$contribution_path/CONTRIBUTIONS.md"
 
-### Contributions
+	log "save the initial contribution to '$contribution_file'"
+	# calculate the hashes of the global artifacts and initial contribution
+	local r1cs_hash=$(get_file_hash "$contribution_path/${circuit}.r1cs")
+	local wasm_hash=$(get_file_hash "$contribution_path/${circuit}.wasm")
+	local initial_ptau_hash=$(get_file_hash "$INPUT_PTAU_PATH")
+	local initial_zkey_hash=$(get_file_hash "$contribution_path/${circuit}_initial_contribution.zkey")
+	# create the contribution file content with the hashes
+	local contributions_content="### $circuit artifacts
+
+- [r1cs]($contribution_path/${circuit}.r1cs) - \`$r1cs_hash\`
+- [wasm]($contribution_path/${circuit}.wasm) - \`$wasm_hash\`
+
+### Contributions for $circuit circuit
+
 \`\`\`
-${CIRCUIT_FILENAME}_initial_contribution.zkey:$initial_zkey_hash
+${circuit}_initial_contribution.zkey:$initial_zkey_hash
 \`\`\`
 
 ### Last contribution
+
 \`\`\`
 
 \`\`\`"
 	# create the contribution file with the initial content
-	echo "$contributions_content" > $CONTRIBUTIONS_FILE
+	echo "$contributions_content" >$contribution_file
 }
 
 init_ceremony() {
-	# check the environment
-	check_create_env $1 || error "error checking the environment"
-	# create the output folder
-	mkdir -p $CONTRIBUTIONS_PATH
-	# compile the circuit
-	compile_circuit || error "error compiling circuit"
-	# prepare the contribution
-	prepare_contribution || error "error preparing contribution"
-	# store the initial contribution
-	save_initial_contribution || error "error storing initial contribution"
+
+	# Set the IFS variable to a comma
+	IFS=,
+	# Read the CSV string into an array
+	read -ra circuits <<<"$TARGET_CIRCUITS"
+	for circuit in "${circuits[@]}"; do
+		# check the environment
+		check_create_env $1 || error "error checking the environment"
+		# compile the circuit
+		compile_circuit ${circuit} || error "error compiling circuit"
+		# prepare the contribution
+		prepare_contribution ${circuit} || error "error preparing contribution"
+		# store the initial contribution
+		save_initial_contribution ${circuit} || error "error storing initial contribution"
+
+	done
+
 }
 
 init_ceremony $1

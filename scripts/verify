@@ -4,7 +4,7 @@
 
 check_last_contribution_env() {
     # get the last contribution zkey file from the contributions file
-    if [ ! -f "$CONTRIBUTIONS_FILE" ]; then
+    if [ ! -f "$CONTRIBUTION_FILE" ]; then
         error "contribution file does not exists, is the ceremony initialized?"
     else 
         LAST_CONTRIBUTION_FILE=$(get_last_contribution_file_path)

@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Build toolkit
       run: |
-        docker build . -q --target zk-voceremony --tag vocdoni/zk-voceremony
+        docker build . -q --target zk-ceremony --tag iden3/zk-ceremony
     - name: Checkout the fork
       uses: actions/checkout@v4
       with:
@@ -26,7 +26,7 @@ jobs:
       run: git lfs checkout
     - name: Run toolkit
       run: |
-        docker run --rm -qt -v ./:/app --env-file ./ceremony.env vocdoni/zk-voceremony verify
+        docker run --rm -qt -v ./:/app --env-file ./ceremony.env iden3/zk-voceremony verify
     - name: Merge PR branch
       if: success() && contains(github.event.pull_request.title, 'Contribution:')
       run: |

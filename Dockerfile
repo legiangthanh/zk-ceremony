@@ -3,17 +3,11 @@ FROM golang:1.21 AS gh
 
 WORKDIR /src
 
-RUN wget https://github.com/vocdoni/gh-cli/archive/refs/tags/v2.39.3-vocdoni.tar.gz -O - | tar -xz --strip-components=1
-
-RUN --mount=type=cache,sharing=locked,id=gomod,target=/go/pkg/mod/cache \
-	go mod download -x
-RUN --mount=type=cache,sharing=locked,id=gomod,target=/go/pkg/mod/cache \
-	--mount=type=cache,sharing=locked,id=goroot,target=/root/.cache/go-build \
-	go build -ldflags="-s -w -X github.com/cli/cli/v2/internal/build.Version=v2.39.3-vocdoni -X github.com/cli/cli/v2/internal/build.Date=$(date --iso-8601)" \
-       -o=/bin ./cmd/gh
+RUN apt update && \
+    apt install gh
 
 ### image to contribute, verify, finish ceremonies
-FROM node AS zk-voceremony
+FROM node AS zk-ceremony
 
 WORKDIR /app
 
@@ -26,11 +20,12 @@ RUN apt update \
     && apt install --no-install-recommends -y git-lfs \
     && git lfs install \
     && apt install --no-install-recommends -y jq \
-	&& apt autoremove -y \
+    && apt autoremove -y \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./scripts/* /bin/
+RUN chmod +x /bin/*
 
 COPY --from=gh /bin/gh /bin/gh
 

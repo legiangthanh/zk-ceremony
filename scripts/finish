@@ -7,10 +7,10 @@ check_finish_env() {
 	echo " - You are using '$CIRCUIT_PATH' as circuit file and '$INPUT_PTAU_PATH' as initial ptau file."
 	echo " - This script will finish the ceremony and verify the result."
 	echo " - The results and initial contribution will be stored in '$OUTPUT_PATH' folder."
-	echo " - The ceremony information and contributions will be stored in '$CONTRIBUTIONS_FILE' file."
+	echo " - The ceremony information and contributions will be stored in '$CONTRIBUTION_FILE' file."
 
     # get the last contribution zkey file from the contributions file
-    if [ ! -f "$CONTRIBUTIONS_FILE" ]; then
+    if [ ! -f "$CONTRIBUTION_FILE" ]; then
         error "contribution file does not exists, is the ceremony initialized?"
         exit 1
     else 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # set -u
-set -x
+# set -x
 
 GITHUB_REPO="Kolezhniuk/zk-voceremony"
 
@@ -40,16 +40,9 @@ prompt_env_inputs() {
         sleep 30
     done
 
-    echo
     echo "Now you need to login to your GitHub account to authenticate the process."
-    echo " - During this process, you will be asked to login to your GitHub account using your browser."
-    echo " - You'll note the permissions requested are excessive, that's a limitation of how gh cli auth works, we can't do much about."
-    echo " - The script will try to open your default browser, but it will fail."
     echo " - Don't worry, just copy the URL shown in the terminal and paste it in your browser."
-    echo "Then, copy the code shown in the terminal and paste it in the browser."
-    echo
 
-    # get the access token
     gh auth login -p https -h github.com -w
 
     echo
@@ -60,24 +53,40 @@ prompt_env_inputs() {
     echo
     read -p "Press enter to continue..."
     echo
-
-    # clone the ceremony branch, shallow and without LFS (it will be pulled later)
-    echo
-    echo "Cloning ceremony branch $CEREMONY_BRANCH (this might take a while)..."
-    echo
-    git config --global lfs.fetchinclude none
-    gh repo fork --clone $GITHUB_REPO -- ./ceremony --branch $CEREMONY_BRANCH --depth 2
-    cd ./ceremony
     CONTRIBUTOR_NAME="$(gh api user --jq '.login')"
-    git config user.name $CONTRIBUTOR_NAME
-    git config user.email $CONTRIBUTOR_NAME@users.noreply.github.com
-    repo_name=$(basename "$GITHUB_REPO")
-    default_repo=$CONTRIBUTOR_NAME/$repo_name
-    gh repo set-default $default_repo
-    git reset --hard upstream/$CEREMONY_BRANCH # ensure everything is clean (important when fork already existed)
+    git config --global user.name $CONTRIBUTOR_NAME
+    git config --global user.email $CONTRIBUTOR_NAME@users.noreply.github.com
 
-    . ceremony.env
-    # set up user identity
+    gh repo fork $GITHUB_REPO --clone=false || {
+        echo "Failed to fork repository"
+        exit 1
+    }
+    repo_name=$(basename "$GITHUB_REPO")
+    git clone "https://github.com/$CONTRIBUTOR_NAME/$repo_name.git" ./ceremony --branch $CEREMONY_BRANCH --depth 2 || {
+        echo "Failed to clone forked repository"
+        exit 1
+    }
+    cd ./ceremony || {
+        echo "Failed to change directory"
+        exit 1
+    }
+    gh repo set-default "$CONTRIBUTOR_NAME/$repo_name" || {
+        echo "Failed to set default remote repository"
+        exit 1
+    }
+    git remote add upstream "https://github.com/$GITHUB_REPO.git" || {
+        echo "Failed to add upstream remote"
+        exit 1
+    }
+    git fetch upstream
+    git reset --hard upstream/$CEREMONY_BRANCH || {
+        echo "Failed to reset branch"
+        exit 1
+    }
+    source ./ceremony.env || {
+        echo "Failed to source ceremony.env"
+        exit 1
+    }
 
     . /bin/tools.sh
 }
@@ -98,12 +107,9 @@ check_contribute_env() {
         sleep 30
     done
 
-    touch .lock && git add .lock && git commit .lock -m "Prevent other contributions" && git push origin $CEREMONY_BRANCH
-    gh pr create --title "Contribution: from $CONTRIBUTOR_NAME to '$CEREMONY_BRANCH' ceremony" --body "" \
-        --base $CEREMONY_BRANCH --draft
-
-    git remote update -p
-    git reset --hard upstream/$CEREMONY_BRANCH # discard .lock commit
+    # touch .lock && git add .lock && git commit .lock -m "Prevent other contributions" && git push origin $CEREMONY_BRANCH
+    # git remote update -p
+    # git reset --hard upstream/$CEREMONY_BRANCH # discard .lock commit
 }
 
 make_contribution() {
@@ -148,8 +154,6 @@ append_hash_to_contributions() {
     # replace the original file with the temporary file including the new
     # last contribution hash
     sed "${last_contribution_target_line}s/.*/$contribution_line/" $temp_file >"$CONTRIBUTION_FILE"
-
-    cat "$CONTRIBUTION_FILE"
 }
 
 init_contribution() {
@@ -180,28 +184,29 @@ init_contribution() {
         git config lfs.fetchinclude "${LAST_CONTRIBUTION_FILE##./}"
         git lfs pull
 
-        check_contribute_env $circuit_folder || error "contribute env failed"
+        check_contribute_env "$circuit_folder" || error "contribute env failed"
         echo " - Your contribution will be saved in $CURRENT_CONTRIBUTION_FILE file"
         echo
         echo "Now, the script will prompt to you for an random input to generate the new contribution."
         echo "This process will take a while... So, be patient and don't close the terminal until the process is finished."
         make_contribution || error "contribution failed"
-        append_hash_to_contributions "$CURRENT_CONTRIBUTION_FILE" $circuit_folder
+        append_hash_to_contributions "$CURRENT_CONTRIBUTION_FILE" "$circuit_folder"
     done
 
     echo "Uploading and committing your contribution..."
     echo "$original_contribution_path"
     git add $original_contribution_path &&
         git commit -m "Contribution: from $CONTRIBUTOR_NAME to '$CEREMONY_BRANCH' ceremony"
-    git push -f origin $CEREMONY_BRANCH && gh pr ready
-    [ $? -ne 0 ] && {
-        echo
-        echo "Error during the contribution process, please start it over or ask for support"
+    git push -f origin $CEREMONY_BRANCH
+    repo_name=$(basename "$GITHUB_REPO")
+    # Ensure the repository is set explicitly in the PR creation command
+    gh pr create --repo "$GITHUB_REPO" --title "Contribution: from $CONTRIBUTOR_NAME to '$CEREMONY_BRANCH' ceremony" --body "" --base "$CEREMONY_BRANCH" --head "$CONTRIBUTOR_NAME:$CEREMONY_BRANCH" || {
+        echo "Failed to create pull request"
         exit 1
-    } || {
-        echo
-        echo "Done! Your contribution has been published!"
     }
+
+    echo
+    echo "Done! Your contribution has been published!"
     echo "Thanks for your contribution! :)"
     echo
 

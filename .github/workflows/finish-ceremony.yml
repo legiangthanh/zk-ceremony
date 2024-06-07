@@ -16,8 +16,8 @@ jobs:
       run: git lfs checkout
     - name: Run toolkit
       run: |
-        docker build . -q --target zk-voceremony --tag vocdoni/zk-voceremony
-        docker run --rm -qt -v ./:/app --env-file ./ceremony.env vocdoni/zk-voceremony finish
+        docker build . -q --target zk-ceremony --tag iden3/zk-ceremony
+        docker run --rm -qt -v ./:/app --env-file ./ceremony.env iden3/zk-ceremony finish
     - name: Commit ceremony artifacts
       if : ${{ success() }}
       uses: stefanzweifel/git-auto-commit-action@v5

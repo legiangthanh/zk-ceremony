@@ -27,7 +27,7 @@ verify_last_contribution() {
         if [ "$(get_file_hash "$last_contribution_zk_file")" != "$last_contribution_hash" ]; then
             error "the last contribution file has been modified, please check the CONTRIBUTIONS.md file"
         fi
-        $SNARKJS zkey verify $r1cs_file $INPUT_PTAU_PATH $last_contribution_zk_file
+        snarkjs zkey verify $r1cs_file /circuits/powersOfTau28_hez_final_18.ptau $last_contribution_zk_file
     done
 }
 

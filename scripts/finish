@@ -1,61 +1,74 @@
 #!/bin/bash
 
 . /bin/tools.sh
+set -x
+# 
+finish_and_verify() {
 
-check_finish_env() {
-	echo -e "Welcome to the '$CEREMONY_BRANCH' zk-voceremony ends process!\n"
-	echo " - You are using '$CIRCUIT_PATH' as circuit file and '$INPUT_PTAU_PATH' as initial ptau file."
-	echo " - This script will finish the ceremony and verify the result."
-	echo " - The results and initial contribution will be stored in '$OUTPUT_PATH' folder."
-	echo " - The ceremony information and contributions will be stored in '$CONTRIBUTION_FILE' file."
+    contribution_path=$1
+    circuit_name=$2
+    local contribution_file="$contribution_path/CONTRIBUTIONS.md"
 
     # get the last contribution zkey file from the contributions file
-    if [ ! -f "$CONTRIBUTION_FILE" ]; then
+    if [ ! -f "$contribution_file" ]; then
         error "contribution file does not exists, is the ceremony initialized?"
         exit 1
-    else 
-        LAST_CONTRIBUTION_FILE=$(get_last_contribution_file_path)
-        LAST_CONTRIBUTION_HASH=$(get_last_contribution_hash)
     fi
+    last_contribution_file=$(get_last_contribution_file_path "$circuit_name" "$contribution_path") 
+    last_contribution_hash=$(get_last_contribution_hash "$contribution_file") 
+    output_path=$OUTPUT_PATH/$circuit_name
 
-    mkdir -p $OUTPUT_PATH
-}
+    mkdir -p $output_path
 
-finish_and_verify() {
-    if [ "$(get_file_hash "$LAST_CONTRIBUTION_FILE")" == "<check CONTRIBUTIONS.md file>" ]; then 
+    if [ "$(get_file_hash "$last_contribution_file")" == "<check CONTRIBUTIONS.md file>" ]; then
         error "no contributions"
         exit 1
     fi
-    if [ "$(get_file_hash "$LAST_CONTRIBUTION_FILE")" != "$LAST_CONTRIBUTION_HASH" ]; then
+    if [ "$(get_file_hash "$last_contribution_file")" != "$last_contribution_hash" ]; then
         error "the last contribution file has been modified, please check the CONTRIBUTIONS.md file"
         exit 1
     fi
-    $SNARKJS zkey beacon $LAST_CONTRIBUTION_FILE $OUTPUT_PATH/${CIRCUIT_FILENAME}_proving_key.zkey 0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
-    $SNARKJS zkey verify $CONTRIBUTIONS_PATH/$CIRCUIT_FILENAME.r1cs $INPUT_PTAU_PATH $OUTPUT_PATH/${CIRCUIT_FILENAME}_proving_key.zkey 
-    $SNARKJS zkey export verificationkey $OUTPUT_PATH/${CIRCUIT_FILENAME}_proving_key.zkey  $OUTPUT_PATH/${CIRCUIT_FILENAME}_verification_key.json
+
+    #TODO: clarify this
+    snarkjs zkey beacon $last_contribution_file $output_path/${circuit_name}_proving_key.zkey 0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
+
+    snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $output_path/${circuit_name}_proving_key.zkey
+
+    snarkjs zkey export verificationkey $output_path/${circuit_name}_proving_key.zkey $output_path/${circuit_name}_verification_key.json
 }
 
 save_results() {
-    cp $CONTRIBUTIONS_PATH/$CIRCUIT_FILENAME.wasm $OUTPUT_PATH/${CIRCUIT_FILENAME}.wasm
-    local wasm_hash=$(get_file_hash "$OUTPUT_PATH/$CIRCUIT_FILENAME.wasm")
-    local pkey_hash=$(get_file_hash "$OUTPUT_PATH/${CIRCUIT_FILENAME}_proving_key.zkey")
-    local vkey_hash=$(get_file_hash "$OUTPUT_PATH/${CIRCUIT_FILENAME}_verification_key.json")
+    local contribution_path=$1
+    local circuit_name=$2
+    local output_path=$OUTPUT_PATH/$circuit_name
+    cp $contribution_path/$circuit_name.wasm $output_path/${circuit_name}.wasm
+    local wasm_hash=$(get_file_hash "$output_path/$circuit_name.wasm")
+    local pkey_hash=$(get_file_hash "$output_path/${circuit_name}_proving_key.zkey")
+    local vkey_hash=$(get_file_hash "$output_path/${circuit_name}_verification_key.json")
 
     echo "# '$CEREMONY_BRANCH' ceremony results
-- [$OUTPUT_PATH/$CIRCUIT_FILENAME.wasm]($OUTPUT_PATH/$CIRCUIT_FILENAME.wasm) - \`$wasm_hash\`
-- [$OUTPUT_PATH/${CIRCUIT_FILENAME}_proving_key.zkey]($OUTPUT_PATH/${CIRCUIT_FILENAME}_proving_key.zkey) - \`$pkey_hash\`
-- [$OUTPUT_PATH/${CIRCUIT_FILENAME}_verification_key.json]($OUTPUT_PATH/${CIRCUIT_FILENAME}_verification_key.json) - \`$vkey_hash\`" > $OUTPUT_FILE
+- [$output_path/$circuit_name.wasm]($output_path/$circuit_name.wasm) - \`$wasm_hash\`
+- [$output_path/${circuit_name}_proving_key.zkey]($output_path/${circuit_name}_proving_key.zkey) - \`$pkey_hash\`
+- [$output_path/${circuit_name}_verification_key.json]($output_path/${circuit_name}_verification_key.json) - \`$vkey_hash\`" >$output_path/RESULTS.md
 }
 
 finish_ceremony() {
-    # check the environment
-    check_finish_env || error "error checking the environment"
-    # finish the ceremony and verify the result generating the proving key and 
-    # the verification key
-    finish_and_verify || error "error finishing the ceremony or verifying the result"
-    # save the results in the results file with the hashes of the generated
-    # files
-    save_results || error "error saving the results"
+    echo -e "Welcome to the '$CEREMONY_BRANCH' zk-ceremony ends process!\n"
+    echo " - You are using '$INPUT_PTAU_PATH' as initial ptau file."
+    echo " - This script will finish the ceremony and verify the result."
+    echo " - The results and initial contribution will be stored in '$OUTPUT_PATH' folder."
+    echo " - The ceremony information and contributions will be stored in '$CONTRIBUTIONS_PATH' folder in CONTRIBUTIONSMD.md file of the specific cirtuit"
+    original_contribution_path="$CONTRIBUTIONS_PATH"
+    contribution_file_names=($(ls -1p $CONTRIBUTIONS_PATH | grep / | sed 's:/*$::'))
+    for circuit_name in "${contribution_file_names[@]}"; do
+        contribution_path="$original_contribution_path/$circuit_name"
+        # finish the ceremony and verify the result generating the proving key and
+        # the verification key
+        finish_and_verify "$contribution_path" "$circuit_name" || error "error finishing the ceremony or verifying the result"
+        # save the results in the results file with the hashes of the generated
+        # files
+        save_results "$contribution_path" "$circuit_name" || error "error saving the results"
+    done
 }
 
 finish_ceremony

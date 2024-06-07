@@ -12,8 +12,8 @@ jobs:
   timeout-contribution:
     runs-on: ubuntu-latest
     steps:
-    - name: Wait 10 minutes
-      run: sleep 600
+    - name: Wait 1 hour 
+      run: sleep 3600
     - name: Close PR branch if still a draft
       if: success() && contains(github.event.pull_request.title, 'Contribution:')
       run: |

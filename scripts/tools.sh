@@ -21,12 +21,10 @@ fi
 
 HASH=b2sum
 CIRCOM=circom
-SNARKJS="snarkjs"
 
 INPUT_PTAU_PATH="/circuits/powersOfTau28_hez_final_18.ptau"
 CONTRIBUTIONS_PATH="${CONTRIBUTIONS_PATH:-"./contributions"}"
 OUTPUT_PATH="${OUTPUT_PATH:-"./results"}"
-OUTPUT_FILE="$OUTPUT_PATH/RESULTS.md"
 
 get_file_hash() {
     # get the hash of the file and return the first part, the second part is

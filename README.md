@@ -68,3 +68,7 @@ A Github action will compile the circuit and generate the first contribution in 
 docker build . --target zk-ceremony --tag iden3/zk-ceremony
 docker build . --target zk-ceremony-create --tag iden3/zk-ceremony-create
 ```
+
+
+1. Create ceremony `bash ./scripts/create-env.sh`
+2. Contribute `docker build . --target zk-ceremony --tag iden3/zk-ceremony --no-cache`

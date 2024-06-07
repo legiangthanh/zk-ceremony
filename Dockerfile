@@ -18,7 +18,12 @@ RUN apt update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./scripts/* /bin/
-RUN chmod +x /bin/*
+
+WORKDIR /circuits/
+
+RUN wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_18.ptau
+
+WORKDIR /app
 
 
 CMD [ "contribute" ]

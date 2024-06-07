@@ -1,11 +1,3 @@
-### we forked gh to reduce the auth permissions requested
-FROM golang:1.21 AS gh
-
-WORKDIR /src
-
-RUN apt update && \
-    apt install gh
-
 ### image to contribute, verify, finish ceremonies
 FROM node AS zk-ceremony
 
@@ -20,6 +12,7 @@ RUN apt update \
     && apt install --no-install-recommends -y git-lfs \
     && git lfs install \
     && apt install --no-install-recommends -y jq \
+    && apt install -y gh \
     && apt autoremove -y \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
@@ -27,7 +20,6 @@ RUN apt update \
 COPY ./scripts/* /bin/
 RUN chmod +x /bin/*
 
-COPY --from=gh /bin/gh /bin/gh
 
 CMD [ "contribute" ]
 

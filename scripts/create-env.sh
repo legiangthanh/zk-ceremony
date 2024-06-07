@@ -34,30 +34,10 @@ if ! command -v git-lfs &>/dev/null; then
     echo "Git LFS is not installed. Please install and run 'git lfs install' before running this script."
 fi
 
-# input_folder=$(ask_to_user "Please enter the path to the folder to store the inputs files (by default './inputs'): " "./inputs")
-# mkdir -p $input_folder
-
-# target_circuit=`ask_to_user "Please enter the path to the circom circuit file: "`
-# if [ ! -f "$target_circuit" ]; then
-#     echo "The file '$target_circuit' does not exists"
-#     exit 1
-# fi
-
-# input_ptau=$(ask_to_user "Please enter the path to the input ptau file (default: powersOfTau28_hez_final_18.ptau): " "./powersOfTau28_hez_final_18.ptau")
-# if [ ! -f "$input_ptau" ]; then
-#     echo "The file '$input_ptau' does not exists"
-#     exit 1
-# fi
-
 ceremony_branch=$(ask_to_user "Please enter the name of the ceremony (and its branch default (ceremony/v3-circuits): " "v3-circuits")
 contributions_path=$(ask_to_user "Please enter the path to the folder to store the contributions files (by default './contributions'): " "./contributions")
 output_path=$(ask_to_user "Please enter the path to the folder to store the resulting files (by default './results'): " "./results")
 target_circuits=$(ask_to_user "Please enter the list of iden3 circuits to be used in the ceremony (by default 'authV3,credentialAtomicQueryV3,credentialAtomicQueryV3OnChain,linkedMultiQuery10'): " "authV3,linkedMultiQuery10")
-
-# circuit_file=$(basename -- "$target_circuit")
-# ptau_file=$(basename -- "$input_ptau")
-# cp $target_circuit $input_folder/$circuit_file &&
-#     cp $input_ptau $input_folder/$ptau_file
 
 echo "TARGET_CIRCUITS=$target_circuits
 CEREMONY_BRANCH=ceremony/$ceremony_branch

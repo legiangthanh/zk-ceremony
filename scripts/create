@@ -17,8 +17,6 @@ check_create_env() {
 	fi
 }
 
-INPUT_PTAU_PATH="/circuits/powersOfTau28_hez_final_18.ptau"
-
 compile_circuit() {
 	log "compile the target citcuit to get the r1cs file"
 	# include the npm global modules in the node_modules folder support circom
@@ -37,7 +35,7 @@ compile_circuit() {
 }
 
 prepare_contribution() {
-	log "prepare the contribution using '/circuits/powersOfTau28_hez_final_18.ptau' as initial ptau file"
+	log "prepare the contribution using $INPUT_PTAU_PATH as initial ptau file"
 	circuit=$1
 	contribution_path=$CONTRIBUTIONS_PATH/$circuit
 	snarkjs groth16 setup $contribution_path/$circuit.r1cs $INPUT_PTAU_PATH $contribution_path/${circuit}_initial_contribution.zkey

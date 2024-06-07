@@ -23,8 +23,8 @@ jobs:
           context: .
           # platforms: linux/amd64,linux/arm64
           push: true     # true to upload image to registry
-          tags: vocdoni/zk-voceremony-create:latest
-          target: zk-voceremony-create
+          tags: vocdoni/zk-ceremony-create:latest
+          target: zk-ceremony-create
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build and Push base image to Docker Hub 
@@ -33,7 +33,7 @@ jobs:
           context: .
           # platforms: linux/amd64,linux/arm64
           push: true     # true to upload image to registry
-          tags: vocdoni/zk-voceremony:latest
-          target: zk-voceremony
+          tags: vocdoni/zk-ceremony:latest
+          target: zk-ceremony
           cache-from: type=gha
           cache-to: type=gha,mode=max

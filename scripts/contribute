@@ -94,7 +94,7 @@ prompt_env_inputs() {
 check_contribute_env() {
     CURRENT_CONTRIBUTION_FILE="$CONTRIBUTIONS_PATH/${1}_${CONTRIBUTOR_NAME}.zkey"
     if [ -e "$CURRENT_CONTRIBUTION_FILE" ]; then
-        echo "You've already contributed to this zk-voceremony in file $CURRENT_CONTRIBUTION_FILE"
+        echo "You've already contributed to this zk-ceremony in file $CURRENT_CONTRIBUTION_FILE"
         echo "Contributing more than once is not allowed. Aborting..."
         exit 1
     fi

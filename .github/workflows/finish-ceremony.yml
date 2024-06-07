@@ -1,7 +1,7 @@
 name: Finish ceremony
 on:
   pull_request:
-    types: [closed]
+    types: [closed, reopened]
 jobs:
   print:
     runs-on: ubuntu-latest

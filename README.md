@@ -36,7 +36,11 @@ You can read more about trusted zk ceremonies [here](https://zkproof.org/2021/06
 You just need docker run, the image will clone this repository and guide you through the whole process:
 
 ```sh
-docker run --rm -it iden3/zk-ceremony
+docker build . --target zk-ceremony --tag iden3/zk-ceremony
+```
+
+```sh
+docker build . --target zk-ceremony-create --tag iden3/zk-ceremony-create
 ```
 
 This will create:
@@ -59,18 +63,3 @@ bash ./scripts/create-env.sh
 It  will create the ceremony branch, commit and push these files to this branch.
 
 A Github action will compile the circuit and generate the first contribution in the `{ceremony_name}` branch. This Github will also create an Pull Request assigned to you. If this PR is closed by you (without merge it), another Github action will be triggered that will finish the ceremony and generate the final artifacts.
-
-### Other options
-
-#### Build docker images locally
-
-```bash
-docker build . --target zk-ceremony --tag iden3/zk-ceremony
-docker build . --target zk-ceremony-create --tag iden3/zk-ceremony-create
-```
-## Ceremony creation
-1. Create ceremony `bash ./scripts/create-env.sh`
-## Ceremony contribution
-2.1 checkout target branch `git checkout {ceremony_name}`
-2.2 Contribute `docker build . --target zk-ceremony --tag iden3/zk-ceremony --no-cache`
-2.3 `docker run --rm -it iden3/zk-ceremony`

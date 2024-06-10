@@ -3,12 +3,12 @@ on:
   pull_request:
     types: [closed, reopened]
 jobs:
-  print:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print GitHub Context
-        run: |
-          echo "${{ toJson(github) }}"
+  # print:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Print GitHub Context
+  #       run: |
+  #         echo "${{ toJson(github) }}"
 
   finish-ceremony:
     if: ${{ github.event.pull_request.merged == false && github.actor == github.event.pull_request.assignee.login && contains(github.event.pull_request.labels.*.name, 'on-going-ceremony') && startsWith(github.event.pull_request.head.ref, 'ceremony/') }}

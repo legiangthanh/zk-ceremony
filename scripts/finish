@@ -1,8 +1,8 @@
 #!/bin/bash
 
 . /bin/tools.sh
-set -x
-# 
+# set -x
+
 finish_and_verify() {
 
     contribution_path=$1
@@ -14,8 +14,8 @@ finish_and_verify() {
         error "contribution file does not exists, is the ceremony initialized?"
         exit 1
     fi
-    last_contribution_file=$(get_last_contribution_file_path "$circuit_name" "$contribution_path") 
-    last_contribution_hash=$(get_last_contribution_hash "$contribution_file") 
+    last_contribution_file=$(get_last_contribution_file_path "$circuit_name" "$contribution_path")
+    last_contribution_hash=$(get_last_contribution_hash "$contribution_file")
     output_path=$OUTPUT_PATH/$circuit_name
 
     mkdir -p $output_path

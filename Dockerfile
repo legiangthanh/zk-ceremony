@@ -25,7 +25,6 @@ RUN wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_18.pt
 
 WORKDIR /app
 
-
 CMD [ "contribute" ]
 
 ### image to create ceremonies

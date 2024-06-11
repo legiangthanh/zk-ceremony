@@ -29,9 +29,6 @@ finish_and_verify() {
         exit 1
     fi
 
-    #TODO: clarify this
-    snarkjs zkey beacon $last_contribution_file $output_path/${circuit_name}_proving_key.zkey 0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
-
     snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $output_path/${circuit_name}_proving_key.zkey
 
     snarkjs zkey export verificationkey $output_path/${circuit_name}_proving_key.zkey $output_path/${circuit_name}_verification_key.json

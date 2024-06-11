@@ -4,24 +4,6 @@
 
 GITHUB_REPO="iden3/zk-voceremony"
 
-retry_command() {
-    local n=1
-    local max=3
-    local delay=10
-    while true; do
-        "$@" && break || {
-            if [[ $n -lt $max ]]; then
-                ((n++))
-                echo "Command failed. Attempt $n/$max:"
-                sleep $delay
-            else
-                echo "The command has failed after $n attempts."
-                return 1
-            fi
-        }
-    done
-}
-
 intro_message() {
 
     echo "Welcome to the zk-ceremony contribution process!"
@@ -75,13 +57,12 @@ prompt_env_inputs() {
     git config --global user.name $CONTRIBUTOR_NAME
     git config --global user.email $CONTRIBUTOR_NAME@users.noreply.github.com
 
-    retry_command "gh repo fork \"$GITHUB_REPO\" --clone=false" || {
+    gh repo fork $GITHUB_REPO --clone=false || {
         echo "Failed to fork repository"
         exit 1
     }
-
     repo_name=$(basename "$GITHUB_REPO")
-    retry_command "git clone \"https://github.com/$CONTRIBUTOR_NAME/$repo_name.git\" ./ceremony --branch $CEREMONY_BRANCH --depth 2" || {
+    git clone "https://github.com/$CONTRIBUTOR_NAME/$repo_name.git" ./ceremony --branch $CEREMONY_BRANCH --depth 2 || {
         echo "Failed to clone forked repository"
         exit 1
     }

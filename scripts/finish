@@ -44,9 +44,9 @@ save_results() {
     local vkey_hash=$(get_file_hash "$output_path/${circuit_name}_verification_key.json")
 
     echo "# '$CEREMONY_BRANCH' ceremony results
-- [$output_path/$circuit_name.wasm]($output_path/$circuit_name.wasm) - \`$wasm_hash\`
-- [$output_path/${circuit_name}_proving_key.zkey]($output_path/${circuit_name}_proving_key.zkey) - \`$pkey_hash\`
-- [$output_path/${circuit_name}_verification_key.json]($output_path/${circuit_name}_verification_key.json) - \`$vkey_hash\`" >$output_path/RESULTS.md
+- [$output_path/$circuit_name.wasm](./$circuit_name.wasm) - \`$wasm_hash\`
+- [$output_path/${circuit_name}_proving_key.zkey](./${circuit_name}_proving_key.zkey) - \`$pkey_hash\`
+- [$output_path/${circuit_name}_verification_key.json](./${circuit_name}_verification_key.json) - \`$vkey_hash\`" >$output_path/RESULTS.md
 }
 
 finish_ceremony() {

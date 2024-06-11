@@ -40,7 +40,7 @@ docker build . --target zk-ceremony --tag iden3/zk-ceremony
 ```
 
 ```sh
-docker build . --target zk-ceremony-create --tag iden3/zk-ceremony-create
+docker run --rm -it iden3/zk-ceremony
 ```
 
 This will create:

@@ -29,19 +29,18 @@ You can read more about trusted zk ceremonies [here](https://zkproof.org/2021/06
 
 * **Git and a Github account** with permissions push to non main branches of this repository. The process will be stored and tracked in a branch of the current GitHub repository. A verified signature must be configured with git to sign the resulting commits.
 * **Docker**: The toolkit uses docker containers to avoid installing dependencies on the host machine and to avoid incompatibilities.
-* **Git LFS installed and initialized (only to create a ceremony)** to track large files like contribution files.
+* **Git LFS installed** and initialized to track large files like contribution files.
 
 ### Contribute to a ceremony
 
 You just need docker run, the image will clone this repository and guide you through the whole process:
 
-```sh
-docker build . --target zk-ceremony --tag iden3/zk-ceremony
-```
+1. checkout the ceremony branch: `git checkout -b ceremony/{branch-name}`
+2. build the docker image: `docker build . --target zk-ceremony --tag iden3/zk-ceremony`
+3. run the docker image: `docker run --rm -it iden3/zk-ceremony`
+4. Follow the instructions
 
-```sh
-docker run --rm -it iden3/zk-ceremony
-```
+**Note**: sometimes there are issue with github cli to fork repo, so in case you face this issue, just run step 3 again
 
 This will create:
 

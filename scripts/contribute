@@ -2,7 +2,7 @@
 # set -u
 # set -x
 
-GITHUB_REPO="iden3/zk-voceremony"
+GITHUB_REPO="iden3/zk-ceremony"
 
 intro_message() {
 

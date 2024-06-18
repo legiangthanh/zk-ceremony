@@ -23,7 +23,7 @@ jobs:
           context: .
           # platforms: linux/amd64,linux/arm64
           push: true     # true to upload image to registry
-          tags: vocdoni/zk-ceremony-create:latest
+          tags: iden3/zk-ceremony-create:latest
           target: zk-ceremony-create
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -33,7 +33,7 @@ jobs:
           context: .
           # platforms: linux/amd64,linux/arm64
           push: true     # true to upload image to registry
-          tags: vocdoni/zk-ceremony:latest
+          tags: iden3/zk-ceremony:latest
           target: zk-ceremony
           cache-from: type=gha
           cache-to: type=gha,mode=max

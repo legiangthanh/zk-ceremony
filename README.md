@@ -55,7 +55,6 @@ And will update:
 Run the following command to prepare the environment:
 
 ```sh
-# git clone https://github.com/iden3/zk-voceremony.git && cd ./zk-voceremony
 bash ./scripts/create-env.sh
 ```
 

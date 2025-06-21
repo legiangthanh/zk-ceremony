@@ -1,4 +1,2 @@
 node_modules/
-*.circom
-*.ptau
 .vscode

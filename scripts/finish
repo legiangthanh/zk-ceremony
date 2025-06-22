@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. /bin/tools.sh
+#. /Users/thanhle/Work/support/zk-ceremony/ceremony.env
+. /Users/thanhle/Work/support/zk-ceremony/scripts/tools.sh
 # set -x
 
 finish_and_verify() {
@@ -29,9 +30,16 @@ finish_and_verify() {
         exit 1
     fi
 
-    snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $output_path/${circuit_name}_proving_key.zkey
+    #echo "snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $output_path/${circuit_name}_proving_key.zkey"
+    #snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $output_path/${circuit_name}_proving_key.zkey
 
-    snarkjs zkey export verificationkey $output_path/${circuit_name}_proving_key.zkey $output_path/${circuit_name}_verification_key.json
+    snarkjs zkey beacon $last_contribution_file $output_path/${circuit_name}_proving_key.zkey 0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f 10 -n="Final Beacon phase2"
+
+    echo "snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $last_contribution_file"
+    snarkjs zkey verify $contribution_path/$circuit_name.r1cs $INPUT_PTAU_PATH $last_contribution_file
+
+    echo "snarkjs zkey export verificationkey $last_contribution_file $output_path/${circuit_name}_verification_key.json"
+    snarkjs zkey export verificationkey $last_contribution_file $output_path/${circuit_name}_verification_key.json
 }
 
 save_results() {
@@ -68,4 +76,5 @@ finish_ceremony() {
     done
 }
 
+INPUT_PTAU_PATH=/Users/thanhle/Work/support/zk-ceremony/circuits/powersOfTau28_hez_final_18.ptau
 finish_ceremony

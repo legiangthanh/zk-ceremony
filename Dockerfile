@@ -15,15 +15,18 @@ RUN apt update \
     && apt install -y gh \
     && apt autoremove -y \
     && apt clean \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY ./scripts/* /bin/
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p ~/.ssh/
 
 WORKDIR /circuits/
 
 RUN wget https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_18.ptau
 
+COPY ./scripts/* /bin/
+
 WORKDIR /app
+
+COPY ./ceremony.env /app
 
 CMD [ "contribute" ]
 
@@ -56,5 +59,6 @@ RUN git clone https://github.com/iden3/circuits.git . && \
 WORKDIR /app
 
 COPY ./scripts/* /bin/
+COPY ./ceremony.env /app
 
 CMD [ "create", "-y" ]

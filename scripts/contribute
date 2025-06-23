@@ -2,7 +2,7 @@
 # set -u
 # set -x
 
-GITHUB_REPO="iden3/zk-ceremony"
+GITHUB_REPO="legiangthanh/zk-ceremony"
 
 intro_message() {
 
@@ -14,11 +14,6 @@ intro_message() {
 }
 
 prompt_env_inputs() {
-    read -p "Enter the name of the repo (by default '$GITHUB_REPO'): " REPO_URL
-    if [ -n "$REPO_URL" ]; then
-        GITHUB_REPO=$REPO_URL
-    fi
-
     # list on-going ceremonies
     branches="$(curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/$GITHUB_REPO/pulls" |
         jq '.[].head.ref' | tr -d '"' | grep ^ceremony | sort -u)"
@@ -28,17 +23,13 @@ prompt_env_inputs() {
     echo "$branches"
     echo
     CEREMONY_BRANCH="$(echo "$branches" | head -n 1)"
+    
     read -p "Enter the name of one of the 'on-going' ceremonies and branches shown above (default $CEREMONY_BRANCH): " BRANCH
     if [ -n "$BRANCH" ]; then
         CEREMONY_BRANCH="$BRANCH"
     fi
 
-    echo
-    while curl -s -H "Accept: application/vnd.github.v3+json" "https://api.github.com/repos/$GITHUB_REPO/pulls" |
-        jq '.[].title' | grep Contribution | grep $CEREMONY_BRANCH; do
-        echo "Oops, there's a PR from someone *right now* uploading a contribution to this ceremony, this takes a few minutes max, so let's sleep 30s and check again"
-        sleep 30
-    done
+    read -p "Enter the name of the new bracnh (by default '$CEREMONY_BRANCH'): " NEW_BRANCH_NAME
 
     echo "Now you need to login to your GitHub account to authenticate the process."
     echo " - Don't worry, just copy the URL shown in the terminal and paste it in your browser."
@@ -57,12 +48,8 @@ prompt_env_inputs() {
     git config --global user.name $CONTRIBUTOR_NAME
     git config --global user.email $CONTRIBUTOR_NAME@users.noreply.github.com
 
-    gh repo fork $GITHUB_REPO --clone=false || {
-        echo "Failed to fork repository"
-        exit 1
-    }
     repo_name=$(basename "$GITHUB_REPO")
-    git clone "https://github.com/$CONTRIBUTOR_NAME/$repo_name.git" ./ceremony --branch $CEREMONY_BRANCH --depth 2 || {
+    git clone "https://github.com/legiangthanh/zk-ceremony.git" ./ceremony --branch $CEREMONY_BRANCH --depth 2 || {
         echo "Failed to clone forked repository"
         exit 1
     }
@@ -71,21 +58,9 @@ prompt_env_inputs() {
         echo "Failed to change directory"
         exit 1
     }
-    gh repo set-default "$CONTRIBUTOR_NAME/$repo_name" || {
-        echo "Failed to set default remote repository"
-        exit 1
-    }
-    git remote add upstream "https://github.com/$GITHUB_REPO.git" || {
-        echo "Failed to add upstream remote"
-        exit 1
-    }
-    git fetch upstream
-    git reset --hard upstream/$CEREMONY_BRANCH || {
-        echo "Failed to reset branch"
-        exit 1
-    }
-    source ./ceremony.env || {
-        echo "Failed to source ceremony.env"
+
+    git checkout -b $NEW_BRANCH_NAME || {
+        echo "Failed to create a new branch with name $NEW_BRANCH_NAME"
         exit 1
     }
 
@@ -93,7 +68,7 @@ prompt_env_inputs() {
 }
 
 check_contribute_env() {
-    CURRENT_CONTRIBUTION_FILE="$CONTRIBUTIONS_PATH/${1}_${CONTRIBUTOR_NAME}.zkey"
+    CURRENT_CONTRIBUTION_FILE="$CONTRIBUTIONS_PATH/${1}_${NEW_BRANCH_NAME}.zkey"
     if [ -e "$CURRENT_CONTRIBUTION_FILE" ]; then
         echo "You've already contributed to this zk-ceremony in file $CURRENT_CONTRIBUTION_FILE"
         echo "Contributing more than once is not allowed. Aborting..."
@@ -197,11 +172,11 @@ init_contribution() {
     echo "Uploading and committing your contribution..."
     echo "$original_contribution_path"
     git add $original_contribution_path &&
-        git commit -m "Contribution: from $CONTRIBUTOR_NAME to '$CEREMONY_BRANCH' ceremony"
-    git push -f origin $CEREMONY_BRANCH
+        git commit -m "Contribution: from $NEW_BRANCH_NAME to '$CEREMONY_BRANCH' ceremony"
+    git push -f origin $NEW_BRANCH_NAME
     repo_name=$(basename "$GITHUB_REPO")
     # Ensure the repository is set explicitly in the PR creation command
-    gh pr create --repo "$GITHUB_REPO" --title "Contribution: from $CONTRIBUTOR_NAME to '$CEREMONY_BRANCH' ceremony" --body "" --base "$CEREMONY_BRANCH" --head "$CONTRIBUTOR_NAME:$CEREMONY_BRANCH" || {
+    gh pr create --repo "$GITHUB_REPO" --title "Contribution: from $NEW_BRANCH_NAME to '$CEREMONY_BRANCH' ceremony" --body "" --base "$CEREMONY_BRANCH" --head "$NEW_BRANCH_NAME" || {
         echo "Failed to create pull request"
         exit 1
     }

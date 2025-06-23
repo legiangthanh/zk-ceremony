@@ -1,7 +1,7 @@
 #!/bin/bash
 # set -x
 
-. /bin/tools.sh
+. /Users/thanhle/Work/support/zk-ceremony/scripts/tools.sh
 
 verify_last_contribution() {
     original_contribution_path="$CONTRIBUTIONS_PATH"
@@ -15,7 +15,7 @@ verify_last_contribution() {
             last_contribution_hash=$(get_last_contribution_hash "$CONTRIBUTION_FILE")
             echo "Last contribution hash: $last_contribution_hash"
             last_contribution_zk_file=$(get_last_contribution_file_path "$circuit_folder" "$CONTRIBUTIONS_PATH")
-            echo "Last contribution file: $LAST_CONTRIBUTION_FILE"
+            echo "Last contribution file: $last_contribution_zk_file"
         fi
 
         mkdir -p $OUTPUT_PATH
@@ -27,7 +27,7 @@ verify_last_contribution() {
         if [ "$(get_file_hash "$last_contribution_zk_file")" != "$last_contribution_hash" ]; then
             error "the last contribution file has been modified, please check the CONTRIBUTIONS.md file"
         fi
-        snarkjs zkey verify $r1cs_file /circuits/powersOfTau28_hez_final_18.ptau $last_contribution_zk_file
+        snarkjs zkey verify $r1cs_file ./circuits/powersOfTau28_hez_final_18.ptau $last_contribution_zk_file
     done
 }
 

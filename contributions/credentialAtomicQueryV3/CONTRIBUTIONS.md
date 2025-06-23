@@ -1,0 +1,16 @@
+### credentialAtomicQueryV3 artifacts
+
+- [r1cs](./contributions/credentialAtomicQueryV3/credentialAtomicQueryV3.r1cs) - `4603529eededdace7a94aff40eb145c7caad7cdd5199d8e90bf0f3ef8eb4806e6265147f242df9053e039f7dbbb6c87df7cc7b4335d3a56ce94bf0ed724b3933`
+- [wasm](./contributions/credentialAtomicQueryV3/credentialAtomicQueryV3.wasm) - `d4f4905a0dff7a06e6c49974613f2a52257a16cc856cbf8aeb75a0ac286f01d61107c14b64df8ea7be4bf919d71aea1bd05f23732bd76d60f518d6e7e4b27c34`
+
+### Contributions for credentialAtomicQueryV3 circuit
+
+```
+credentialAtomicQueryV3_initial_contribution.zkey:6b6d0539132af7688526885b99c595fe34ca1e446378fb71fa934a434c939414b87e006116bf4ec08e876a2233efdd2542fa058aec8174dc95ed935f4d93eba5
+credentialAtomicQueryV3_test1.zkey:cd9acacbc4fea3548439bd4d4e654a8af3f1890920a2313c9dcdff63f26d0d8765dd8a15d2a1734f387dea40f567c784c3072682b418037e3382c9bf4097356f
+```
+
+### Last contribution
+```
+credentialAtomicQueryV3_test1.zkey:cd9acacbc4fea3548439bd4d4e654a8af3f1890920a2313c9dcdff63f26d0d8765dd8a15d2a1734f387dea40f567c784c3072682b418037e3382c9bf4097356f
+```

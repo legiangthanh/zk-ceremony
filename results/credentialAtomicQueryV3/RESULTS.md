@@ -1,0 +1,4 @@
+# 'ceremony/thanh-circuits' ceremony results
+- [./results/credentialAtomicQueryV3/credentialAtomicQueryV3.wasm](./credentialAtomicQueryV3.wasm) - `d4f4905a0dff7a06e6c49974613f2a52257a16cc856cbf8aeb75a0ac286f01d61107c14b64df8ea7be4bf919d71aea1bd05f23732bd76d60f518d6e7e4b27c34`
+- [./results/credentialAtomicQueryV3/credentialAtomicQueryV3_proving_key.zkey](./credentialAtomicQueryV3_proving_key.zkey) - `ff420407c14ba6f5b57e5ffa2e646772be5a2ab2c685aa6807f8646d65ec85df1b24b02629f0a73e34932cb6f1ad9e3a8dd4628697bbb5ce8b966c435d4cc5c9`
+- [./results/credentialAtomicQueryV3/credentialAtomicQueryV3_verification_key.json](./credentialAtomicQueryV3_verification_key.json) - `ad7fce141b0369374bab1b2ef3af39cad830e62e3ce701e0e02b0787755448f01bdaea59382807772749ce3f76b806712a3cf9abb128645e29f9bcb13dc7daa1`
